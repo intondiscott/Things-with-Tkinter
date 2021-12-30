@@ -12,26 +12,22 @@ class calc(Tk):
     def num_buttons(self):
         global num_button
         num_button= []
-        operator_key = ['+', '-', '*', '/']
 
+        # This is to add the num_button indices
         for num in range(10):
             num_button.append(num)
             num_button[num] = tk.Button(text=num,width=8,height=4)
 
-        plus_button = tk.Button(text=operator_key[0],width=8, height=4)
-        plus_button['command'] = lambda: self.get_first_number(self.get_operation(operator_key[0]))
+        plus_button = tk.Button(text='+',width=8, height=4, command=lambda: self.get_operation('+'))
         plus_button.grid(row=4, column=3, padx=1, pady=1)
 
-        sub_button = tk.Button(text=operator_key[1],width=8, height=4)
-        sub_button['command'] = lambda: self.get_first_number(self.get_operation(operator_key[1]))
+        sub_button = tk.Button(text='-',width=8, height=4, command=lambda: self.get_operation('-'))
         sub_button.grid(row=3,column=3, padx=1, pady=1)
 
-        multiply_button = tk.Button(text=operator_key[2],width=8, height=4)
-        multiply_button['command'] = lambda: self.get_first_number(self.get_operation(operator_key[2]))
+        multiply_button = tk.Button(text='*',width=8, height=4, command=lambda: self.get_operation('*'))
         multiply_button.grid(row=2,column=3, padx=1, pady=1)
 
-        divide_button = tk.Button(text=operator_key[3],width=8, height=4)
-        divide_button['command'] = lambda: self.get_first_number(self.get_operation(operator_key[3]))
+        divide_button = tk.Button(text='/',width=8, height=4, command=lambda: self.get_operation('/'))
         divide_button.grid(row=1, column=3, padx=1, pady=1)
 
         equals = tk.Button(text='=', width=18, height=4, command=lambda: self.result())
@@ -74,28 +70,23 @@ class calc(Tk):
         second_num = inputs.get()
         answer = 0
         if operation_value == '*':
-            answer = int(first_num) * int(second_num)
+            answer = float(first_num) * float(second_num)
         if operation_value == '-':
-            answer = int(first_num) - int(second_num)
+            answer = float(first_num) - float(second_num)
         if operation_value == '+':
-            answer = int(first_num) + int(second_num)
+            answer = float(first_num) + float(second_num)
         if operation_value == '/':
-            answer = int(first_num) / int(second_num)
+            answer = float(first_num) / float(second_num)
 
         inputs.delete(0, END)
         inputs.insert(0,str(answer))
 
     def get_operation(self,operator):
        global operation_value
-       self.operator = operator
        operation_value = operator
-       return operation_value
-
-    def get_first_number(self,key):
-       self.key = key
        global first_num
        first_num = inputs.get()
-       inputs.delete(0,END)
+       inputs.delete(0, END)
 
 def main():
     WIDTH = 300
