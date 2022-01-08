@@ -1,103 +1,88 @@
 import tkinter as tk
 from tkinter import *
-    
-class calc(Tk):
-    def set_window_size_and_title(self,x,y, title_name):
-        self.x = x
-        self.y = y
-        self.title_name = title_name
+
+def getLambda(func, text):
+    return lambda: func(text)
+
+class Calc(Tk):
+    def __init__(self):
+        super().__init__()
+        self.first_num = 0.0
+        self.operator = None
+
+    def _set_window_size_and_title(self, x, y, title_name):
         self.title(title_name)
         self.geometry(f'{x}x{y}')
 
-    def num_buttons(self):
-        global num_button
-        num_button= []
-
-        # This is to add the num_button indices
+    def _render_buttons(self):
+        H = 2
         for num in range(10):
-            num_button.append(num)
-            num_button[num] = tk.Button(text=num,width=8,height=4)
+            button = tk.Button(self, text=num, width=8, height=H, command=getLambda(self._number_pressed, num))
+            button.grid(row = 4 if num == 0 else 3 - int((num - 1) / 3), column = 0 if num == 0 else (num + 2) % 3, padx = 1, pady = 1)
 
-        plus_button = tk.Button(text='+',width=8, height=4, command=lambda: self.get_operation('+'))
-        plus_button.grid(row=4, column=3, padx=1, pady=1)
+        for i, op in enumerate(['/', '*', '-', '+']):
+            button = tk.Button(self, text=op, width=8, height=H, command=getLambda(self._op_pressed, op))
+            button.grid(row = 1 + i, column = 3, padx = 1, pady = 1)
 
-        sub_button = tk.Button(text='-',width=8, height=4, command=lambda: self.get_operation('-'))
-        sub_button.grid(row=3,column=3, padx=1, pady=1)
+        equals = tk.Button(self, text='=', width=18, height=H, command= lambda: self._equals_pressed())
+        equals.grid(row=4, column=1, columnspan=2, padx=1, pady=1)
 
-        multiply_button = tk.Button(text='*',width=8, height=4, command=lambda: self.get_operation('*'))
-        multiply_button.grid(row=2,column=3, padx=1, pady=1)
+    def _render_textfield(self):
+        self.inputs = tk.Entry(self, width=14)
+        self.inputs.pack(fill=tk.X, expand=True)
+        self.inputs.grid(row=0, column=0, columnspan=4)
 
-        divide_button = tk.Button(text='/',width=8, height=4, command=lambda: self.get_operation('/'))
-        divide_button.grid(row=1, column=3, padx=1, pady=1)
+    def _number_pressed(self, numChar):
+        print('pressed ', numChar)
+        if self.operator == '=':
+            self.inputs.delete(0, END)
+            self.operator = None
+        self.inputs.insert(len(self.inputs.get()), numChar)
 
-        equals = tk.Button(text='=', width=18, height=4, command=lambda: self.result())
-        equals.grid(row=4,column=1,columnspan=2, padx=1, pady=1)
+    def _op_pressed(self, operator):
+        if self.operator is not None and self.operator != '=':
+            self._equals_pressed()
+        self.first_num = 0.0 if len(self.inputs.get()) == 0 else float(self.inputs.get())
+        self.operator = operator
+        print(self.first_num, self.operator, ' ? ')
+        self.inputs.delete(0, END)
 
-        num_button[7].grid(row=1,column=0, padx=1, pady=1)
-        num_button[8].grid(row=1, column=1, padx=1, pady=1)
-        num_button[9].grid(row=1, column=2, padx=1, pady=1)
-        num_button[4].grid(row=2, column=0, padx=1, pady=1)
-        num_button[5].grid(row=2, column=1, padx=1, pady=1)
-        num_button[6].grid(row=2, column=2, padx=1, pady=1)
-        num_button[1].grid(row=3, column=0, padx=1, pady=1)
-        num_button[2].grid(row=3, column=1, padx=1, pady=1)
-        num_button[3].grid(row=3, column=2, padx=1, pady=1)
-        num_button[0].grid(row=4, column=0, padx=1, pady=1)
+    def _equals_pressed(self):
+        if self.operator is None or self.first_num is None:
+            return
+        second_num = 0.0 if len(self.inputs.get()) == 0 else float(self.inputs.get())
+        print('second num = ', second_num)
+        if self.operator == '*':
+            result = self.first_num * second_num
+        elif self.operator == '-':
+            result = self.first_num - second_num
+        elif self.operator == '+':
+            result = self.first_num + second_num
+        elif self.operator == '/':
+            result = self.first_num / second_num
+        else:
+            result = 0.0
+        print(self.first_num, self.operator, second_num, ' = ', result)
+        self.inputs.delete(0, END)
+        self.inputs.insert(0, str(result))
+        self.first_num = result
+        self.operator = '='
 
-        num_button[0]['command'] = lambda: self.button_function(num_button[0]['text'])
-        num_button[1]['command'] = lambda: self.button_function(num_button[1]['text'])
-        num_button[2]['command'] = lambda: self.button_function(num_button[2]['text'])
-        num_button[3]['command'] = lambda: self.button_function(num_button[3]['text'])
-        num_button[4]['command'] = lambda: self.button_function(num_button[4]['text'])
-        num_button[5]['command'] = lambda: self.button_function(num_button[5]['text'])
-        num_button[6]['command'] = lambda: self.button_function(num_button[6]['text'])
-        num_button[7]['command'] = lambda: self.button_function(num_button[7]['text'])
-        num_button[8]['command'] = lambda: self.button_function(num_button[8]['text'])
-        num_button[9]['command'] = lambda: self.button_function(num_button[9]['text'])
+    def render(self, width, height):
+        self._set_window_size_and_title(width, height, "Calculator App")
+        self._render_textfield()
+        self._render_buttons()
 
-    def draw_textfield(self):
-        global inputs
-        inputs = tk.Entry()
-        inputs.config(width=24,border=10,font=20)
-        inputs.grid(row=0, column=0, columnspan=4)
-
-    def button_function(self,text):
-        cur_idx = inputs.get()
-        inputs.delete(0,END)
-        inputs.insert(0,str(cur_idx)+str(text))
-
-    def result(self):
-        second_num = inputs.get()
-        answer = 0
-        if operation_value == '*':
-            answer = float(first_num) * float(second_num)
-        if operation_value == '-':
-            answer = float(first_num) - float(second_num)
-        if operation_value == '+':
-            answer = float(first_num) + float(second_num)
-        if operation_value == '/':
-            answer = float(first_num) / float(second_num)
-
-        inputs.delete(0, END)
-        inputs.insert(0,str(answer))
-
-    def get_operation(self,operator):
-       global operation_value
-       operation_value = operator
-       global first_num
-       first_num = inputs.get()
-       inputs.delete(0, END)
 
 def main():
-    WIDTH = 300
-    HIGHT = 360
-    TITLE = "Calculator App"
+    WIDTH = 600
+    HEIGHT = 360
 
-    calculator = calc()
-    calculator.set_window_size_and_title(WIDTH, HIGHT, TITLE)
-    calculator.draw_textfield()
-    calculator.num_buttons()
+    calculator = Calc()
+    calculator.render(WIDTH, HEIGHT)
     calculator.mainloop()
+
+
 if __name__ == '__main__':
-   main()
-    
+    print("Starting calc")
+    main()
